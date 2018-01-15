@@ -5,13 +5,9 @@ var ctx = canvas.getContext('2d');
 
 var width = canvas.width = window.innerWidth;
 var height = canvas.height = window.innerHeight;
+window.resizeTo(width-10, height-10);
 
 var btnStart = document.getElementById('start');
-
-//var pAvailableBalls = document.createElement('p');
-//pAvailable.textContent = '25';
-//body.appendChild(pAvailable);
-
 
 
 // function to generate random number
@@ -120,9 +116,11 @@ var balls = [];
 var evilOne;
 var existsNumber;
 var animationReq;
+
 function startGame() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
   ctx.fillRect(0, 0, width, height);
+	ctx.font = "24px white serif";
 
   while(balls.length < 25) {
     var ball = new Ball(random(0, width),
@@ -134,6 +132,8 @@ function startGame() {
     balls.push(ball);
   }
   existsNumber = balls.length;
+	ctx.strokeText('25 balls left', width-160, 20);
+//	ctx.fillText('25 balls left', width-160, 20);
 	evilOne = new EvilCircle(150,
                 200,
                 0, 0,
@@ -144,8 +144,10 @@ function startGame() {
 }
 
 function loop() {
-  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
-  ctx.fillRect(0, 0, width, height);
+	ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+	ctx.fillRect(0, 0, width, height);
+	ctx.strokeText(existsNumber+' balls left', width-160, 20);
+//	ctx.fillText(existsNumber+' balls left', width-160, 20);
   for(var i = 0; i < balls.length; i++) {
     evilOne.draw();
     evilOne.catchDetect(balls[i]);
@@ -173,14 +175,18 @@ function stopAnimation() {
   ctx.fillRect(0, 0, width, height);
 }
 
+
 btnStart.addEventListener("click", clickButton);
 
 function clickButton() {
+	btnStart.style.color = "white";
   if(btnStart.textContent === "Start Now") {
 			btnStart.textContent = "Stop";
+			btnStart.style.backgroundColor = "green";
 			startGame();
 	} else {
 	  btnStart.textContent = "Start Now";
+		btnStart.style.backgroundColor = "red";
 		stopAnimation();
 	}
 }
