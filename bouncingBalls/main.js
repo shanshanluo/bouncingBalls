@@ -6,6 +6,8 @@ var ctx = canvas.getContext('2d');
 var width = canvas.width = window.innerWidth;
 var height = canvas.height = window.innerHeight;
 
+var btnStart = document.getElementById('start');
+
 //var pAvailableBalls = document.createElement('p');
 //pAvailable.textContent = '25';
 //body.appendChild(pAvailable);
@@ -31,7 +33,7 @@ function Shape(x, y, velX, velY, exists) {
 // Ball constructor is inherited from Shape constructor
 function Ball(x, y, velX, velY, exists, color, size) {
   Shape.call(this, x, y, velX, velY, exists);
-	
+
 	this.color = color;
 	this.size = size;
 }
@@ -92,7 +94,7 @@ Ball.prototype.checkCollision = function() {
 
 function EvilCircle(x, y, velX, velY, exists, size, color) {
   Shape.call(this, x, y, velX, velY, exists);
-	
+
 	this.color = color;
 	this.size = size;
 }
@@ -105,7 +107,7 @@ EvilCircle.prototype.draw = function() {
 }
 
 EvilCircle.prototype.catchDetect = function(ball) {
-	
+
 	var dx = ball.x - this.x;
 	var dy = ball.y - this.y;
 	var distance = Math.sqrt(dx*dx + dy*dy);
@@ -115,49 +117,70 @@ EvilCircle.prototype.catchDetect = function(ball) {
 }
 
 var balls = [];
-var numberOfBalls = 25;
-function loop() {
-
-	var existsNumber = 25;
+var evilOne;
+var existsNumber;
+var animationReq;
+function startGame() {
   ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
   ctx.fillRect(0, 0, width, height);
 
   while(balls.length < 25) {
     var ball = new Ball(random(0, width),
                 random(0, height),
-                random(1, 7), random(1, 7),
+                random(3, 7), random(3, 7),
 								'true',
                 'rgb(' + random(0,255) + ',' + random(0, 255) + ',' + random(0, 255) + ')',
                 random(10, 20));
     balls.push(ball);
   }
-	var evilOne = new EvilCircle(90,
-                90,
+  existsNumber = balls.length;
+	evilOne = new EvilCircle(150,
+                200,
                 0, 0,
 								'true',
 								10,
 								'white');
-								
-	evilOne.draw();
-
-	
-  for(var i = 0; i < balls.length; i++) {
-		if(balls[i].exists === 'true'){
-			balls[i].draw();
-		}   
-    balls[i].update();
-    balls[i].checkCollision();
-		evilOne.catchDetect(balls[i]);
-		if(balls[i].exists === 'false') {
-		  existsNumber--;
-			if(existsNumber == 0) {
-			  alert("Refresh to restart game!");
-			}
-		}
-  }
-
-  requestAnimationFrame(loop);
-
+  loop();
 }
 
-loop();
+function loop() {
+  ctx.fillStyle = 'rgba(0, 0, 0, 0.25)';
+  ctx.fillRect(0, 0, width, height);
+  for(var i = 0; i < balls.length; i++) {
+    evilOne.draw();
+    evilOne.catchDetect(balls[i]);
+		if(balls[i].exists === 'false'){
+      balls.splice(i, 1);
+      existsNumber--;
+			if(existsNumber === 0) {
+			  alert("Refresh to restart game!");
+        break;
+			}
+			continue;
+		} else {
+      balls[i].draw();
+      balls[i].update();
+      balls[i].checkCollision();
+    }
+  }
+  animationReq = requestAnimationFrame(loop);
+}
+
+function stopAnimation() {
+  balls = [];
+  cancelAnimationFrame(animationReq);
+  ctx.fillStyle = 'white';
+  ctx.fillRect(0, 0, width, height);
+}
+
+btnStart.addEventListener("click", clickButton);
+
+function clickButton() {
+  if(btnStart.textContent === "Start Now") {
+			btnStart.textContent = "Stop";
+			startGame();
+	} else {
+	  btnStart.textContent = "Start Now";
+		stopAnimation();
+	}
+}
